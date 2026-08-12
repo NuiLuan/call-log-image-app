@@ -308,39 +308,44 @@
     }
 
     function drawSignalArea(time) {
-      drawText(time, 37, 43, 22, '#f1f1f1', 500, 'left', 'numeric');
-      drawText('0.00', 455, 31, 10, '#fff', 700, 'center', 'numeric');
-      drawText('KB/S', 455, 44, 10, '#fff', 700, 'center');
+      const top = 27;
+      const center = 39;
+      const bottom = 51;
+
+      drawText(time, 37, center, 24, '#f1f1f1', 500, 'left', 'numeric', 'middle');
+      drawText('0.00', 455, top, 11, '#fff', 700, 'center', 'numeric', 'top');
+      drawText('KB/S', 455, top + 12, 10, '#fff', 700, 'center', 'ui', 'top');
 
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(501, 38, 13, Math.PI * 1.16, Math.PI * 1.84);
+      ctx.arc(501, center - 1, 13, Math.PI * 1.16, Math.PI * 1.84);
       ctx.stroke();
       ctx.beginPath();
-      ctx.arc(501, 42, 7, Math.PI * 1.18, Math.PI * 1.82);
+      ctx.arc(501, center + 3, 7, Math.PI * 1.18, Math.PI * 1.82);
       ctx.stroke();
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(501, 48, 2.8, 0, Math.PI * 2);
+      ctx.arc(501, bottom - 2, 2.8, 0, Math.PI * 2);
       ctx.fill();
 
-      drawText('4G', 535, 33, 13, '#fff', 700, 'center', 'numeric');
-      drawText('4G', 565, 33, 13, '#fff', 700, 'center', 'numeric');
+      drawText('4G', 535, top, 12, '#fff', 700, 'center', 'numeric', 'top');
+      drawText('4G', 565, top, 12, '#fff', 700, 'center', 'numeric', 'top');
       for (let i = 0; i < 4; i += 1) {
-        ctx.fillRect(523 + i * 7, 49 - i * 5, 4, 5 + i * 5);
-        ctx.fillRect(553 + i * 7, 49 - i * 5, 4, 5 + i * 5);
+        const barHeight = 5 + i * 4;
+        ctx.fillRect(523 + i * 7, bottom - barHeight, 4, barHeight);
+        ctx.fillRect(553 + i * 7, bottom - barHeight, 4, barHeight);
       }
 
       ctx.fillStyle = '#b5b5ba';
       ctx.beginPath();
-      ctx.roundRect(584, 29, 40, 20, 7);
+      ctx.roundRect(584, top, 40, 22, 7);
       ctx.fill();
       ctx.fillStyle = '#8f8f94';
       ctx.beginPath();
-      ctx.roundRect(624, 35, 4, 8, 2);
+      ctx.roundRect(624, center - 4, 4, 8, 2);
       ctx.fill();
-      drawText('99%', 604, 44, 11, '#111', 700, 'center', 'numeric');
+      drawText('99%', 604, center, 11, '#111', 700, 'center', 'numeric', 'middle');
     }
 
     function drawCallIcon(x, y) {
@@ -435,9 +440,12 @@
     function downloadImage() {
       drawTemplate();
       const link = document.createElement('a');
-      const safePhone = cleanPhone(phoneInput.value || defaults.phone) || 'phone';
-      const safeDate = (dateInput.value.trim() || defaults.date).replace(/[^\d-]/g, '-');
-      link.download = `nhat-ky-cuoc-goi-${safePhone}-${safeDate}.png`;
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[-:]/g, '')
+        .replace('T', '_')
+        .replace(/\.\d{3}Z$/, '');
+      link.download = `Screenshot+${timestamp}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
