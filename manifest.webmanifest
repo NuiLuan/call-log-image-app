@@ -1,0 +1,19 @@
+{
+  "name": "Tạo ảnh nhật ký cuộc gọi",
+  "short_name": "Call Log",
+  "description": "Nhập số điện thoại, giờ, ngày và xuất ảnh nhật ký cuộc gọi.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
