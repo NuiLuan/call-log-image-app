@@ -1,4 +1,4 @@
-const CACHE_NAME = 'phone-template-app-v3';
+const CACHE_NAME = 'phone-template-app-v4';
 const APP_SHELL = [
   './',
   './index.html',

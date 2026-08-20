@@ -97,6 +97,18 @@
       gap: 12px;
     }
 
+    .phone-entry {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .paste-btn {
+      min-width: 58px;
+      padding: 0 14px;
+    }
+
     .summary {
       margin-top: 18px;
       padding: 14px;
@@ -204,7 +216,10 @@
       <h1>Tạo ảnh nhật ký cuộc gọi</h1>
 
       <label for="phoneInput">Số điện thoại</label>
-      <input id="phoneInput" inputmode="numeric" autocomplete="off" value="0703262626" maxlength="14">
+      <div class="phone-entry">
+        <input id="phoneInput" inputmode="numeric" autocomplete="off" value="" maxlength="14">
+        <button class="secondary paste-btn" id="pastePhoneBtn" type="button">Dán</button>
+      </div>
 
       <div class="row">
         <div>
@@ -246,13 +261,16 @@
     const callCompletedInput = document.getElementById('callCompletedInput');
     const summary = document.getElementById('summary');
     const downloadBtn = document.getElementById('downloadBtn');
+    const pastePhoneBtn = document.getElementById('pastePhoneBtn');
     const resetBtn = document.getElementById('resetBtn');
     const uiCanvasFont = 'Roboto, "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
     const numericCanvasFont = 'Roboto, "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif';
 
     const defaults = {
-      phone: '0703262626'
+      phone: ''
     };
+
+    let completedDurationSeconds = null;
 
     function pad(value) {
       return String(value).padStart(2, '0');
@@ -297,6 +315,17 @@
     function rowTime(value) {
       const [h, m] = value.split(':');
       return `${Number(h)}:${m}`;
+    }
+
+    function randomCompletedDuration() {
+      return Math.floor(Math.random() * 8) + 12;
+    }
+
+    function getCompletedStatusText() {
+      if (completedDurationSeconds === null) {
+        completedDurationSeconds = randomCompletedDuration();
+      }
+      return `(${completedDurationSeconds} giây)`;
     }
 
     function drawText(text, x, y, size, color = '#f3f3f3', weight = 400, align = 'left', fontType = 'ui', baseline = 'alphabetic') {
@@ -456,7 +485,7 @@
       drawText('Nhật ký cuộc gọi', 45, 1091, 25, '#89898e', 400);
       drawText('Xóa', 594, 1091, 25, '#3ed072', 400, 'center');
 
-      drawCallRow(1168, time, date, isCallCompleted ? '(15 giây)' : 'Chưa được kết nối');
+      drawCallRow(1168, time, date, isCallCompleted ? getCompletedStatusText() : 'Chưa được kết nối');
       if (!isCallCompleted) {
         drawCallRow(1298, minus5, date);
         drawCallRow(1428, minus10, date);
@@ -482,18 +511,34 @@
       drawTemplate();
       const link = document.createElement('a');
       const now = new Date();
-      const timestamp = [
+      const dateParam = [
         now.getFullYear(),
         pad(now.getMonth() + 1),
         pad(now.getDate())
-      ].join('') + '_' + [
+      ].join('');
+      const timeParam = [
         pad(now.getHours()),
         pad(now.getMinutes()),
         pad(now.getSeconds())
       ].join('');
-      link.download = `Screenshot+${timestamp}.png`;
+      link.download = `Screenshot_${dateParam}-${timeParam}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+    }
+
+    async function pastePhoneNumber() {
+      try {
+        if (!navigator.clipboard?.readText) {
+          phoneInput.focus();
+          return;
+        }
+        const clipboardText = await navigator.clipboard.readText();
+        phoneInput.value = cleanPhone(clipboardText);
+        drawTemplate();
+        phoneInput.focus();
+      } catch (error) {
+        phoneInput.focus();
+      }
     }
 
     function resetValues() {
@@ -501,6 +546,7 @@
       timeInput.value = currentDefaults.time;
       dateInput.value = currentDefaults.date;
       callCompletedInput.checked = false;
+      completedDurationSeconds = null;
       drawTemplate();
     }
 
@@ -524,8 +570,12 @@
     });
     timeInput.addEventListener('input', drawTemplate);
     dateInput.addEventListener('input', drawTemplate);
-    callCompletedInput.addEventListener('change', drawTemplate);
+    callCompletedInput.addEventListener('change', () => {
+      completedDurationSeconds = callCompletedInput.checked ? randomCompletedDuration() : null;
+      drawTemplate();
+    });
     downloadBtn.addEventListener('click', downloadImage);
+    pastePhoneBtn.addEventListener('click', pastePhoneNumber);
     resetBtn.addEventListener('click', resetValues);
 
     timeInput.value = currentDefaults.time;
